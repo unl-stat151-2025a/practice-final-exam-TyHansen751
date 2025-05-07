@@ -129,9 +129,9 @@ sum(yarn$machine_washable, na.rm = TRUE)
 
     2. (5 points) List the column that has the: (Fill this in)   
 
-        - yarn_weight_crochet_gauge
-        - id
-        - rating_count
+        > yarn_weight_crochet_gauge
+        > id
+        > rating_count
 
     <!-- Code for this goes in the chunk below -->
 
@@ -144,7 +144,7 @@ missing_counts
 # Which column has the most, fewest, and median NA values?
 names(missing_counts[which.max(missing_counts)])   # Most NAs
 names(missing_counts[which.min(missing_counts)])   # Fewest NAs
-names(sort(missing_counts)[length(missing_counts) %/% 2])  # Median NAs
+names(yarn)[missing_counts == median(missing_counts)] # Median NAs
 
 ```
 
@@ -203,7 +203,7 @@ ggplot(yarn_weight_counts, aes(x = yarn_weight_name, y = yarn_company_name, fill
     
     2. (3 points) Examine the rows where `texture` and `texture_clean` differ. What function(s) do you think were used to transform `texture` to `texture_clean`?
     
-    > Your answer goes here (supporting code should be in the chunk below)
+    > stringr str_trim and str_to_lower were used to create texture_clean
     
     3. (5 points) Describe/sketch the process you would use to identify the top 15 common descriptor words/phrases. 
 > Remove NAs so we only look at actual text.
@@ -234,31 +234,28 @@ sum(yarn$texture != yarn$texture_clean, na.rm = TRUE)
 
 
 # Examine the rows where `texture` and `texture_clean` differ. What function(s) do you think were used to transform `texture` to `texture_clean`?
-filter(yarn, texture != texture_clean)
-
+filter(yarn, texture != texture_clean) |>
+  select(texture, texture_clean)|>
+  head(10)
 
 # Create a variable, `top_descriptors`, that contains the top 15 common descriptor words/phrases.
-
-# Remove NAs
-clean_textures <- yarn$texture_clean[!is.na(yarn$texture_clean)]
-# Combine all text into one long string
-all_text <- paste(clean_textures, collapse = " ")
-# Split into individual words
-all_words <- strsplit(tolower(all_text), " ")[[1]]
-# Count word frequencies
-word_counts <- table(all_words)
-# Get top 15 words
-top_descriptors <- names(sort(word_counts, decreasing = TRUE)[1:15])
+#seperate verything into a single phrase (get rid of coma), sort by most used and look at top 15.
+descriptors <- yarn$texture_clean |> str_split(",") |> unlist()
+descriptors_count<- table(descriptors) |> sort(decreasing = TRUE)
+top_descriptors<- names(descriptors_count)[1:15]
 top_descriptors
 
 # Write a function corresponding to the operations described in 5.5, `is_top_descriptor`. Your function should take a texture description and return `True` if one of the `top_descriptors` is present, and `False` if none of the `top_descriptors` are present. 
-is_top_descriptor <- function(text) {
-  any(str_detect(text, paste(top_descriptors, collapse = "|")))
+is_top_descriptor <- function(descr) {
+  is_top<- rep(FALSE, length(descr))
+  for(i in top_descriptors){
+    is_top<-is_top |
+   str_detect(descr, i)
+  }
 }
-
+  
 # Create a new column in `yarn`, `common_texture`, which is `True` if `texture_clean` contains one of the popular keywords and `False` otherwise. 
-yarn <- yarn %>%
-  mutate(common_texture = sapply(texture_clean, is_top_descriptor))
+yarn$common_texture <- is_top_descriptor(yarn$texture_clean)
 
 ```
 
@@ -274,14 +271,10 @@ yarn <- yarn %>%
 
     2. (5 points) Describe a process for converting this variable to a representative integer. What assumptions or simplifying decisions would you make? 
     
-    > My answer is on page ___ of my scratch paper
-    
-    <!-- OR -->
-    
     > The steps to convert the variable to an integer are...
-    > 1. Extract numbers
-    > 2. Average if range
-    > 3. Use an integer 
+    > 1. Replace all 0-4 values with 4 and all 5-6 values with 6 
+    > 2. Convert string values to integers NA will stay NA
+    > 3. 
     
     3. (5 points) Write a function, `convert_weight_int(x)` that takes a character string describing the weight and converts it to a representative integer.
     
@@ -310,24 +303,26 @@ unique(yarn$yarn_weight_wpi)
 
 
 # Write a function, `convert_weight_int(x)` that takes a character string describing the weight and converts it to a representative integer.
-convert_weight_int <- function(x) {
-  if (is.na(x)) return(NA)
-  nums <- str_extract_all(x, "\\d+")[[1]]
-  if (length(nums) == 0) return(NA)
-  mean(as.numeric(nums))
+convert_weight_int <- function(x){
+  x_numbstr<- x |> str_replace_all(pattern= c("0-4"="4", "5-6"="6"))
+  x_num<- as.integer(x_numbstr)
+  return(x_num)
 }
 
 # Use your function to create a new column in yarn, `yarn_weight_wpi_num`. 
-yarn <- yarn %>%
-  mutate(yarn_weight_wpi_num = sapply(yarn_weight_wpi, convert_weight_int))
+yarn<- yarn |> mutate(yarn_weight_wpi_num = convert_weight_int(yarn_weight_wpi))
+
 # What is the mean yarn weight for Bernat yarns?
 # If you had trouble with 6.4, you can use `prob6pt4.csv` to complete this problem. 
-yarn %>%
-  filter(yarn_company_name == "Bernat") %>%
-  summarize(mean_weight = mean(yarn_weight_wpi_num, na.rm = TRUE))
+yarn |>
+  filter(yarn_company_name == "Bernat")|>
+  summarize(yarn_wt = mean(yarn_weight_wpi_num, na.tr=True))
+
 # Remove any rows with an NA for `yarn_weight_wpi_num`.     
 # If you had trouble with 6.4, you can use `prob6pt4.csv` to complete this problem. 
-yarn_clean <- yarn %>% filter(!is.na(yarn_weight_wpi_num))
+yarn_no_na<- yarn|>
+  filter(!is.na(yarn_weight_wpi_num))
+head(yarn_no_na,10)
 
 ```
 
