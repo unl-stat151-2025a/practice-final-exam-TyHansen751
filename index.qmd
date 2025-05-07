@@ -129,9 +129,9 @@ sum(yarn$machine_washable, na.rm = TRUE)
 
     2. (5 points) List the column that has the: (Fill this in)   
 
-        - Most NA values
-        - Fewest NA values
-        - Median NA values
+        - yarn_weight_crochet_gauge
+        - id
+        - rating_count
 
     <!-- Code for this goes in the chunk below -->
 
