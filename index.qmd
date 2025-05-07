@@ -110,7 +110,7 @@ dim(yarn)  # Returns number of rows and columns
 
     2. (3 points) Explain how your code works, including any changes in variable types that occur during the computation. 
     
-    > Your explanation goes here 
+    > The code is suming up all the yarns that are machine washable, disregarding any na values. 
     
 <!-- (keep the > at the front of the line, with a space after it - this is a blockquote in markdown, and sets your answers apart so that I can see them clearly) -->
 
@@ -199,18 +199,18 @@ ggplot(yarn_weight_counts, aes(x = yarn_weight_name, y = yarn_company_name, fill
 
     1. (2 points) For how many rows of `yarn` do `texture` and `texture_clean` differ?
     
-    14702
+    > 14702
     
     2. (3 points) Examine the rows where `texture` and `texture_clean` differ. What function(s) do you think were used to transform `texture` to `texture_clean`?
     
     > Your answer goes here (supporting code should be in the chunk below)
     
     3. (5 points) Describe/sketch the process you would use to identify the top 15 common descriptor words/phrases. 
-Remove NAs so we only look at actual text.
-Combine all descriptions into one string.
-Split the text into separate words.
-Counts how often each word appears.
-Keeps the top 15 most common words.
+> Remove NAs so we only look at actual text.
+> Combine all descriptions into one string.
+> Split the text into separate words.
+> Counts how often each word appears.
+> Keeps the top 15 most common words.
 
     4. (5 points) Create a variable, `top_descriptors`, that contains the top 15 common descriptor words/phrases.
     
@@ -293,7 +293,7 @@ yarn <- yarn %>%
     <!-- Code for this goes in the chunk below -->
     
     5. (2 points) What is the mean yarn weight for Bernat yarns?    
-    If you had trouble with 6.4, you can use `prob6pt4.csv` to complete this problem.     8.23
+    If you had trouble with 6.4, you can use `prob6pt4.csv` to complete this problem.     > 8.23
     
     
     <!-- Code for this goes in the chunk below -->
